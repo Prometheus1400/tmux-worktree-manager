@@ -46,10 +46,22 @@ if ! tmux_supports_popup; then
     exit 0
 fi
 
-cmd="display-popup -S \"fg=blue\" -T \" ${title} \" -E -xC -yC -w ${width} -h ${height} -d \"#{pane_current_path}\" \"$CURRENT_DIR/scripts/popup.sh\""
+# Escape semicolons for tmux (tmux treats ';' as a command separator)
+key="${key//;/\\;}"
+
+cmd_args=(
+    display-popup
+    -S "fg=blue"
+    -T " ${title} "
+    -E -xC -yC
+    -w "${width}"
+    -h "${height}"
+    -d "#{pane_current_path}"
+    "$CURRENT_DIR/scripts/popup.sh"
+)
 
 if [[ "$prefixless" == "on" || "$prefixless" == "true" || "$prefixless" == "1" || "$prefixless" == "yes" ]]; then
-    tmux bind-key -n "$key" "$cmd"
+    tmux bind-key -n "$key" "${cmd_args[@]}"
 else
-    tmux bind-key "$key" "$cmd"
+    tmux bind-key "$key" "${cmd_args[@]}"
 fi
